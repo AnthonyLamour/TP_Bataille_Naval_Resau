@@ -55,7 +55,7 @@ def init_grids():
     while XSM not in ('a','b','c','d','e') or YSM not in ('1','2','3','4','5'):
         print("Veuillez entrer la position de votre sous-marin (1 case) ? exemple a,1")
         position=input(">>")
-        if(len(position)==3):
+        if(len(position)==3 and position.find(',') != -1):
             tmp_tab=position.split(',')
             XSM=tmp_tab[0]
             YSM=tmp_tab[1]
@@ -80,7 +80,7 @@ def init_grids():
         while(XC not in ('a','b','c','d','e') or YC not in ('1','2','3','4','5') or HOV not in ('h','v')):
             print("Veuillez entrer la position de votre croiseur (3 case) et h ou v (pour horizontal, verticale) ? exemple a,1,h")
             position=input(">>")
-            if(len(position)==5):
+            if(len(position)==5 and position.find(',') != -1):
                 tmp_tab=position.split(',')
                 XC=tmp_tab[0]
                 YC=tmp_tab[1]
@@ -264,21 +264,28 @@ def affichage_grille(grid,opp):
             ligne=ligne+" "+str(grid[i][int(j)-1])
         print(ligne)
         
+#demande_de_tire
 def demande_de_tire(XC,YC):
     
+    #déclaration et initialisation de coupValide
     coupValide=False
+    #temps que le coup n'est pas valide
     while(coupValide==False):
+        #temps que XC et YC ne sont pas valide
         while(XC not in ('a','b','c','d','e') or YC not in ('1','2','3','4','5')):
+            #affichage de la grille de l'opposant
             affichage_grille(opp_grid,True)
+            #demande du coup
             print("Entrez votre coup :")
             coupJoueur=input(">>")
-            if(len(coupJoueur)==3):
+            if(len(coupJoueur)==3 and coupJoueur.find(',') != -1):
                 tmp_tab=coupJoueur.split(',')
                 XC=tmp_tab[0]
                 YC=tmp_tab[1]
             else:
                 XC=""
                 YC=""
+        #vérification de la validité du tire
         if(opp_grid[XC][int(YC)-1]!=0):
             coupValide=False
         else:
