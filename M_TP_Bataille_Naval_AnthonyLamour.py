@@ -2,15 +2,7 @@
 from socket import AF_INET, SOCK_STREAM, socket, setdefaulttimeout, timeout
 import socket as socketpackage
 import time, sys
-
-#port de jeu sur la machine
-PORT_JEU = 8887
-#socket
-socket_comm = None
-#adresse
-addr = None
-#durée d'attente maximale en secondes
-DUREE_ATTENTE_MAX = 30.0
+from Constantes import *
 
 #variables servvant à définir les joueurs
 local_player = None
@@ -285,9 +277,12 @@ def demande_de_tire(XC,YC):
             else:
                 XC=""
                 YC=""
+                
         #vérification de la validité du tire
         if(opp_grid[XC][int(YC)-1]!=0):
             coupValide=False
+            XC=""
+            YC=""
         else:
             coupValide=True
     return coupJoueur
