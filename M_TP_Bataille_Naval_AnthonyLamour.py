@@ -55,9 +55,13 @@ def init_grids():
     while XSM not in ('a','b','c','d','e') or YSM not in ('1','2','3','4','5'):
         print("Veuillez entrer la position de votre sous-marin (1 case) ? exemple a,1")
         position=input(">>")
-        tmp_tab=position.split(',')
-        XSM=tmp_tab[0]
-        YSM=tmp_tab[1]
+        if(len(position)==3):
+            tmp_tab=position.split(',')
+            XSM=tmp_tab[0]
+            YSM=tmp_tab[1]
+        else:
+            XSM=""
+            YSM=""
         
     #modification du Y pour qu'il soit entre 0 et 4 et puisse servir d'index de tableau
     YSM=int(YSM)-1
@@ -72,14 +76,19 @@ def init_grids():
     positionvalide=False
     
     #demande de la position du croiseur
-    while XC not in ('a','b','c','d','e') or YC not in ('1','2','3','4','5') or positionvalide==False:
-        print("Veuillez entrer la position de votre croiseur (3 case) et h ou v (pour horizontal, verticale) ? exemple a,1,h")
-        position=input(">>")
-        tmp_tab=position.split(',')
-        XC=tmp_tab[0]
-        YC=tmp_tab[1]
-        HOV=tmp_tab[2]
-        
+    while(positionvalide==False):
+        while(XC not in ('a','b','c','d','e') or YC not in ('1','2','3','4','5') or HOV not in ('h','v')):
+            print("Veuillez entrer la position de votre croiseur (3 case) et h ou v (pour horizontal, verticale) ? exemple a,1,h")
+            position=input(">>")
+            if(len(position)==5):
+                tmp_tab=position.split(',')
+                XC=tmp_tab[0]
+                YC=tmp_tab[1]
+                HOV=tmp_tab[2]
+            else:
+                XC=""
+                YC=""
+                HOV=""
         #si l'orientation du croiseur est horizontal alors...
         if HOV=='h':
             #...si X est valide alors...
@@ -118,20 +127,23 @@ def init_grids():
             else:
                 #... on indique que la position est invalide
                 positionvalide=False
-        #on rempli le reste de la grille avec des 0
-        for i in ('a','b','c','d','e'):
-            for j in ('1','2','3','4','5'):
-                if my_grid[i][int(j)-1]!=1:
-                    my_grid[i][int(j)-1]=0
-        #on affiche la grille
-        print(my_grid)
         
-        #on rempli la grille de l'opposant avec des 0
-        for i in ('a','b','c','d','e'):
-            for j in ('1','2','3','4','5'):
-                opp_grid[i][int(j)-1]=0
-        #on affiche la grille de l'opposant
-        print(opp_grid)
+    #on rempli le reste de la grille avec des 0
+    for i in ('a','b','c','d','e'):
+        for j in ('1','2','3','4','5'):
+            if my_grid[i][int(j)-1]!=1:
+                my_grid[i][int(j)-1]=0
+    #on affiche la grille
+    print("votre grille")
+    affichage_grille(my_grid,False)
+    
+    #on rempli la grille de l'opposant avec des 0
+    for i in ('a','b','c','d','e'):
+        for j in ('1','2','3','4','5'):
+            opp_grid[i][int(j)-1]=0
+    #on affiche la grille de l'opposant
+    print("grille adverse")
+    affichage_grille(opp_grid,True)
 
 #init_roles
 def init_roles():
@@ -230,11 +242,17 @@ def check_grid(grid):
     #renvoie de res
     return res
     
-#affichage_tir affiche la grille des tirs déjà effectué
-def affichage_tir(grid):
-    #affichage d'un message expliquant le fonctionnement du tableau
-    print("Etat du champ de bataille :")
-    print("0=Pas encore ciblé 1=Toucher 2=Rater")
+#affichage_grille affiche la grille passé en paramètre
+def affichage_grille(grid,opp):
+    print("\n")
+    if(opp==True):
+        #affichage d'un message expliquant le fonctionnement du tableau
+        print("Etat du champ de bataille :")
+        print("0=Pas encore ciblé 1=Toucher 2=Rater")
+    else:
+        #affichage d'un message expliquant le fonctionnement du tableau
+        print("Etat de votre terrain :")
+        print("0=vide 1=bateau")
     #affichage du tableau
     print("  1 2 3 4 5")
     #initialisation de ligne
@@ -245,6 +263,27 @@ def affichage_tir(grid):
         for j in ('1','2','3','4','5'):
             ligne=ligne+" "+str(grid[i][int(j)-1])
         print(ligne)
+        
+def demande_de_tire(XC,YC):
+    
+    coupValide=False
+    while(coupValide==False):
+        while(XC not in ('a','b','c','d','e') or YC not in ('1','2','3','4','5')):
+            affichage_grille(opp_grid,True)
+            print("Entrez votre coup :")
+            coupJoueur=input(">>")
+            if(len(coupJoueur)==3):
+                tmp_tab=coupJoueur.split(',')
+                XC=tmp_tab[0]
+                YC=tmp_tab[1]
+            else:
+                XC=""
+                YC=""
+        if(opp_grid[XC][int(YC)-1]!=0):
+            coupValide=False
+        else:
+            coupValide=True
+    return coupJoueur
 
 #initialisation des roles
 init_roles()
@@ -274,22 +313,14 @@ while(not GameOver):
     XC=''
     YC=''
     coupJoueur=""
-    coupValide=False
     
     #si le server joue et que nous sommes le server alors...
     if(gamestate=='1' and local_player==PL_CODE_ONE):
         #demande d'un coup
-        while(XC not in ('a','b','c','d','e') or YC not in ('1','2','3','4','5') or coupValide==False):
-            affichage_tir(opp_grid)
-            print("Entrez votre coup :")
-            coupJoueur=input(">>")
-            tmp_tab=coupJoueur.split(',')
-            XC=tmp_tab[0]
-            YC=tmp_tab[1]
-            if(opp_grid[XC][int(YC)-1]!=0):
-                coupValide=False
-            else:
-                coupValide=True
+        coupJoueur=demande_de_tire(XC,YC)
+        tmp_tab=coupJoueur.split(',')
+        XC=tmp_tab[0]
+        YC=tmp_tab[1]
         #envoi du coup
         socket_comm.send(coupJoueur.encode())
         #réception de Toucher
@@ -323,17 +354,10 @@ while(not GameOver):
         #sinon...
         else:
             #... demande de coup
-            while(XC not in ('a','b','c','d','e') or YC not in ('1','2','3','4','5') or coupValide==False):
-                affichage_tir(opp_grid)
-                print("Entrez votre coup :")
-                coupJoueur=input(">>")
-                tmp_tab=coupJoueur.split(',')
-                XC=tmp_tab[0]
-                YC=tmp_tab[1]
-                if(opp_grid[XC][int(YC)-1]!=0):
-                    coupValide=False
-                else:
-                    coupValide=True
+            coupJoueur=demande_de_tire(XC,YC)
+            tmp_tab=coupJoueur.split(',')
+            XC=tmp_tab[0]
+            YC=tmp_tab[1]
             #envoie du coup
             socket_comm.send(coupJoueur.encode())
             #réception de toucher
@@ -429,5 +453,7 @@ while(not GameOver):
             #envoi de toucher
             socket_comm.send(Toucher.encode())
             
+socket_comm.close()
 #affichage d'un message au joueur pour indiqué la fin de la partie   
 print("Merci d'avoir joué")
+input()
